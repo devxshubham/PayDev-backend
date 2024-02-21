@@ -8,6 +8,10 @@ const zod = require('zod');
 const jwt = require('jsonwebtoken')
 const {JWT_SECRET} = require('../config')
 
+const { authMiddleware } = require('../middleware')
+
+router.use(authMiddleware)
+
 
 const userSignup = zod.object({
     username: zod.string().email().min(4).max(30),
@@ -21,7 +25,9 @@ const userLogin = zod.object({
 })
 
 router.post('/signup', async(req, res) => {
+
     const { success } = userSignup.safeParse(req.body);
+
     if( !success ){
         return res.status(411).send({
             message: "Incorrect inputs"
@@ -61,6 +67,10 @@ router.post('/signin', async(req, res) => {
     }
 
     const user = await User.findOne( {username : req.body.username})
+
+    if( user == null ) return res.json({
+        msg : "cannot find user"
+    })
     if( user.password == req.body.password ){
         const token = jwt.sign({
             userId : user._id
