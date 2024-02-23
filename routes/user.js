@@ -85,5 +85,13 @@ router.post('/signin', async(req, res) => {
         })
     }
 })
+router.put('/', async(req, res) => {
+    const userId = req.userId
+    const newData = req.body
+
+    const updated = await User.findOneAndUpdate({ id : userId}, newData)
+    console.log(updated)
+    return res.send(updated)
+})
 
 module.exports = router
