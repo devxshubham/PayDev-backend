@@ -88,8 +88,11 @@ router.post('/signin', async(req, res) => {
 router.put('/', async(req, res) => {
     const userId = req.userId
     const newData = req.body
+    console.log(newData)
 
-    const updated = await User.findOneAndUpdate({ id : userId}, newData)
+    const updated = await User.findOneAndUpdate({ _id : userId}, newData, {
+        new : true
+    });
     console.log(updated)
     return res.send(updated)
 })
