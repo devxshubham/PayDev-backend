@@ -1,5 +1,4 @@
 const mongoose  = require('mongoose')
-const { string } = require('zod')
 
 mongoose.connect("mongodb://localhost:27017/paydev")
 .then(()=>{
@@ -39,10 +38,22 @@ const userSchema = new Schema({
     }
     
 })
+const AccountSchema = Schema({
+    userId : {
+        type : Schema.Types.ObjectId,
+        ref : 'User',
+        required : true
+    },
+    balance : {
+        type : Number,
+        required : true,
+    }
+})
 
 const User = mongoose.model('User', userSchema)
-
+const Account = mongoose.model('Account', AccountSchema)
 
 module.exports = {
     User,
+    Account
 }

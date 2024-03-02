@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router();
 
-const {User}  = require('../db')
+const {User, Account}  = require('../db')
 
 const zod = require('zod');
 
@@ -49,10 +49,15 @@ router.post('/signup', async(req, res) => {
 
     const newUser = await User.create(req.body)
     
-    const userid = newUser._id
+    const userId = newUser._id
+
+    await Account.create({
+        userId,
+        balance: 1 + Math.random() * 10000
+    })
 
     const token = jwt.sign({
-        userId : userid
+        userId : userId
     },JWT_SECRET)
 
     res.json({
