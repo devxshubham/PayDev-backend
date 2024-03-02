@@ -23,6 +23,11 @@ const userLogin = zod.object({
 	username: zod.string().email().min(4).max(30),
 	password: zod.string().min(6).max(30)
 })
+const updateBody = zod.object({
+    password : zod.string().min(6).max(30).optional(),
+    firstName : zod.string().max(30).optional(),
+    lastName : zod.string().max(30).optional()
+})
 
 router.post('/signup', async(req, res) => {
 
@@ -86,6 +91,14 @@ router.post('/signin', async(req, res) => {
     }
 })
 router.put('/', async(req, res) => {
+
+    const { success} = updateBody.safeParse(req.body)
+    if( !success ){
+        return res.json({
+            msg : "invalid input"
+        })
+    }
+
     const userId = req.userId
     const newData = req.body
     console.log(newData)
@@ -93,8 +106,28 @@ router.put('/', async(req, res) => {
     const updated = await User.findOneAndUpdate({ _id : userId}, newData, {
         new : true
     });
-    console.log(updated)
-    return res.send(updated)
+    if( updated ) return res.json({ msg : "updated succefully"})
+    else return res.json({ msg : "error while updating"})
+})
+
+router.get('/bulk', async(req, res) => {
+    const filter = req.query.filter
+
+    const users = await User.find({
+        $or: [
+            {
+                firstName : { $regex : filter}
+            },
+            {
+                lastName : { $regex : filter}
+            }
+        ]
+    }, 'username firstName lastName _id')
+
+
+    res.json({
+        users : users
+    })
 })
 
 module.exports = router
