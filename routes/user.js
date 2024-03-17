@@ -10,17 +10,17 @@ const {JWT_SECRET} = require('../config')
 
 const { authMiddleware } = require('../middleware')
 
-router.use(authMiddleware)
+// router.use(authMiddleware)
 
 
 const userSignup = zod.object({
-    username: zod.string().email().min(4).max(30),
+    email: zod.string().email().min(4).max(30),
 	firstName: zod.string().max(30),
 	lastName: zod.string().max(30),
 	password: zod.string().min(6).max(30)
 })
 const userLogin = zod.object({
-	username: zod.string().email().min(4).max(30),
+	email: zod.string().email().min(4).max(30),
 	password: zod.string().min(6).max(30)
 })
 const updateBody = zod.object({
@@ -30,7 +30,7 @@ const updateBody = zod.object({
 })
 
 router.post('/signup', async(req, res) => {
-
+    console.log(req.body);
     const { success } = userSignup.safeParse(req.body);
 
     if( !success ){
@@ -39,7 +39,7 @@ router.post('/signup', async(req, res) => {
         })
     }
 
-    const existingUser = await User.findOne({ username : req.body.username})
+    const existingUser = await User.findOne({ email : req.body.email})
     console.log(existingUser)
     if( existingUser ){
         return res.status(411).send({
@@ -76,7 +76,7 @@ router.post('/signin', async(req, res) => {
         })
     }
 
-    const user = await User.findOne( {username : req.body.username})
+    const user = await User.findOne( {email : req.body.email})
 
     if( user == null ) return res.json({
         msg : "cannot find user"
@@ -91,7 +91,7 @@ router.post('/signin', async(req, res) => {
     }
     else{
         return res.status(411).json({
-            msg : "incorrect username or password"
+            msg : "incorrect email or password"
         })
     }
 })
@@ -102,7 +102,7 @@ router.put('/', async(req, res) => {
         return res.json({
             msg : "invalid input"
         })
-    }
+    } 
 
     const userId = req.userId
     const newData = req.body
@@ -116,7 +116,7 @@ router.put('/', async(req, res) => {
 })
 
 router.get('/bulk', async(req, res) => {
-    const filter = req.query.filter
+    const filter = req.query.filter || ""
 
     const users = await User.find({
         $or: [
@@ -127,8 +127,7 @@ router.get('/bulk', async(req, res) => {
                 lastName : { $regex : filter}
             }
         ]
-    }, 'username firstName lastName _id')
-
+    }, 'email firstName lastName _id')
 
     res.json({
         users : users

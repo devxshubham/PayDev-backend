@@ -10,7 +10,7 @@ mongoose.connect("mongodb://localhost:27017/paydev")
 
 const Schema = mongoose.Schema
 const userSchema = new Schema({
-    username : {
+    email : {
         unique : true,
         type : String,
         required : true,
