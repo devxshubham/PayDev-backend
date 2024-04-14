@@ -1,5 +1,6 @@
 const mongoose  = require('mongoose')
 
+require('dotenv').config();
 
 mongoose.connect(`mongodb+srv://devshubhamcode:${process.env.PASSWORD}@${process.env.DBNAME}.bmf2gq9.mongodb.net/paydev`)
 .then(()=>{
