@@ -1,6 +1,7 @@
 const mongoose  = require('mongoose')
 
-mongoose.connect("mongodb+srv://devshubhamcode:QPeeaol4cDzNp7j9@shubhdb.bmf2gq9.mongodb.net/paydev")
+
+mongoose.connect(`mongodb+srv://devshubhamcode:${process.env.PASSWORD}@${process.env.DBNAME}.bmf2gq9.mongodb.net/paydev`)
 .then(()=>{
     console.log("CONNECTED TO MONGO")
 })
