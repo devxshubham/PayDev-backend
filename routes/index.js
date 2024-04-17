@@ -10,10 +10,4 @@ router.use('/account', accountRouter)
 
 
 
-
-
-
-
-
-
 module.exports = router

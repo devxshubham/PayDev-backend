@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router();
+const mongoose = require('mongoose')
 
 const {User, Account}  = require('../db')
 
@@ -10,7 +11,6 @@ const {JWT_SECRET} = require('../config')
 
 const { authMiddleware } = require('../middleware')
 
-// router.use(authMiddleware)
 
 
 const userSignup = zod.object({
@@ -30,7 +30,7 @@ const updateBody = zod.object({
 })
 
 router.post('/signup', async(req, res) => {
-    console.log(req.body);
+
     const { success } = userSignup.safeParse(req.body);
 
     if( !success ){
@@ -40,7 +40,7 @@ router.post('/signup', async(req, res) => {
     }
 
     const existingUser = await User.findOne({ email : req.body.email})
-    console.log(existingUser)
+
     if( existingUser ){
         return res.status(411).send({
             message: "Email already taken"
@@ -72,7 +72,7 @@ router.post('/signin', async(req, res) => {
     const { success} = userLogin.safeParse(req.body)
     if( !success ){
         return res.json({
-            msg : "invalid input"
+            msg : "invalid input here"
         })
     }
 
@@ -95,6 +95,12 @@ router.post('/signin', async(req, res) => {
         })
     }
 })
+router.get('/', authMiddleware, async(req, res) => {
+
+    const user = await User.findById(req.userId)
+
+    res.status(200).json(user);
+})
 router.put('/', async(req, res) => {
 
     const { success} = updateBody.safeParse(req.body)
@@ -106,7 +112,6 @@ router.put('/', async(req, res) => {
 
     const userId = req.userId
     const newData = req.body
-    console.log(newData)
 
     const updated = await User.findOneAndUpdate({ _id : userId}, newData, {
         new : true
@@ -118,13 +123,19 @@ router.put('/', async(req, res) => {
 router.get('/bulk', async(req, res) => {
     const filter = req.query.filter || ""
 
+    // db.users.find( { _id: { $nin: [ObjectId("65f72a41c7342afe326916a0")] } })
+
     const users = await User.find({
         $or: [
             {
-                firstName : { $regex : filter}
+                firstName: {
+                    "$regex": filter
+                }
             },
             {
-                lastName : { $regex : filter}
+                lastName: {
+                    "$regex": filter
+                }
             }
         ]
     }, 'email firstName lastName _id')
